@@ -31,7 +31,7 @@ func (s *server) HandleSendEmail() http.HandlerFunc {
 			return
 		}
 		for _, user := range allUsers {
-			s.emailServer.SendEmail(user.Email, data.Title, data.Content)
+			go s.emailServer.SendEmail(user.Email, data.Title, data.Content)
 		}
 
 		s.respond(w, r, response{Message: fmt.Sprintf("%d emails sent!", len(allUsers))}, http.StatusOK)
