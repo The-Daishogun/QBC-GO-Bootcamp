@@ -8,7 +8,7 @@ import (
 
 func (s *server) HandleSendEmail() http.HandlerFunc {
 	type request struct {
-		Title   string
+		Subject string
 		Content string
 	}
 	type response struct {
@@ -18,8 +18,8 @@ func (s *server) HandleSendEmail() http.HandlerFunc {
 		data := request{}
 		s.decode(w, r, &data)
 
-		if data.Title == "" || data.Content == "" {
-			s.respond(w, r, ErrorResponse{Error: "Title, Content should not be empty"}, http.StatusBadRequest)
+		if data.Subject == "" || data.Content == "" {
+			s.respond(w, r, ErrorResponse{Error: "Subject, Content should not be empty"}, http.StatusBadRequest)
 			return
 		}
 
@@ -31,7 +31,7 @@ func (s *server) HandleSendEmail() http.HandlerFunc {
 			return
 		}
 		for _, user := range allUsers {
-			s.emailServer.SendEmail(user.Email, data.Title, data.Content)
+			s.emailServer.SendEmail(user.Email, data.Subject, data.Content)
 		}
 
 		s.respond(w, r, response{Message: fmt.Sprintf("%d emails sent!", len(allUsers))}, http.StatusOK)
