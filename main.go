@@ -1,20 +1,26 @@
 package main
 
 import (
-	"log"
-	"net/http"
-	"qbc/backend/deps"
-	"qbc/backend/server"
+	"fmt"
+	"time"
 )
 
-func main() {
-	log.Println("Setting Up the Server...")
-	db := deps.CreateNewDB()
-	emailServer := deps.NewEmailServer()
-	s := server.NewServer(db, emailServer)
-	log.Println("HTTP Server Running on http://localhost:8000")
-	err := http.ListenAndServe(":8000", s)
-	if err != nil {
-		log.Fatal("Error Starting server. Error: ", err.Error())
+func work(from string) {
+	for i := 0; i < 3; i++ {
+		fmt.Println(from, ":", i)
 	}
+}
+
+func main() {
+
+	work("direct")
+
+	go work("goroutine")
+
+	go func(msg string) {
+		fmt.Println(msg)
+	}("going")
+
+	time.Sleep(time.Second)
+	fmt.Println("done")
 }
