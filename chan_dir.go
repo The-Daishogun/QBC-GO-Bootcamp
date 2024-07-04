@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func ping(pings chan<- string, msg string) {
 	pings <- msg
@@ -14,7 +16,7 @@ func pong(pings <-chan string, pongs chan<- string) {
 func main() {
 	pings := make(chan string, 1)
 	pongs := make(chan string, 1)
-	ping(pings, "passed message")
+	ping(pings, "hello bootcamp")
 	pong(pings, pongs)
 	fmt.Println(<-pongs)
 }

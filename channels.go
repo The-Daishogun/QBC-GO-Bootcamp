@@ -1,13 +1,25 @@
 package main
 
-import "fmt"
+import (
+	"log"
+	"time"
+)
 
 func main() {
 
 	messages := make(chan string)
 
-	go func() { messages <- "ping" }()
+	go func() {
+		messages <- "ping"
+		messages <- "pong"
+		log.Println("rast migam?")
+	}()
 
 	msg := <-messages
-	fmt.Println(msg)
+	log.Println(msg)
+	time.Sleep(time.Second)
+	msg2 := <-messages
+	log.Println(msg2)
+	time.Sleep(time.Second)
+
 }

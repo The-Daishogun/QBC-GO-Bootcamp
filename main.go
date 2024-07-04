@@ -17,9 +17,9 @@ func main() {
 
 	go work("goroutine")
 
-	go func(msg string) {
-		fmt.Println(msg)
-	}("going")
+	go func() {
+		fmt.Println("going")
+	}()
 
 	time.Sleep(time.Second)
 	fmt.Println("done")
