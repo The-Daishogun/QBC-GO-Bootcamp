@@ -19,9 +19,15 @@ func (s *server) respond(w http.ResponseWriter, r *http.Request, data any, statu
 	if data == nil {
 		return
 	}
+
+	strData, ok := data.(string)
+	if ok {
+		w.Write([]byte(strData))
+		return
+	}
+
 	err := json.NewEncoder(w).Encode(data)
 	if err != nil {
 		s.respond(w, r, nil, http.StatusInternalServerError)
 	}
-
 }
