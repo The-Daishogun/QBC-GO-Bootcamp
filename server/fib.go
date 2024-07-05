@@ -10,7 +10,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-func calculate_fib(num int, cache *redis.Client) int {
+func CalculateFibWithCaching(num uint64, cache *redis.Client) uint64 {
 	if num <= 1 {
 		return num
 	}
@@ -22,11 +22,11 @@ func calculate_fib(num int, cache *redis.Client) int {
 	fibStr, err := cache.Get(ctx, cacheKey).Result()
 	if err == nil {
 		log.Println("CACHE HIT")
-		fibInt, _ := strconv.Atoi(fibStr)
+		fibInt, _ := strconv.ParseUint(fibStr, 10, 64)
 		return fibInt
 	}
 
-	fib := calculate_fib(num-2, cache) + calculate_fib(num-1, cache)
+	fib := CalculateFibWithCaching(num-2, cache) + CalculateFibWithCaching(num-1, cache)
 
 	_, err = cache.Set(ctx, cacheKey, fib, 0).Result()
 	if err != nil {
@@ -35,17 +35,24 @@ func calculate_fib(num int, cache *redis.Client) int {
 	return fib
 }
 
+func CaclulateFib(num uint64) uint64 {
+	if num <= 1 {
+		return num
+	}
+	return CaclulateFib(num-2) + CaclulateFib(num-1)
+}
+
 func (s *server) HandleFib() http.HandlerFunc {
 	type response struct {
-		Answer int
+		Answer uint64
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
-		num, err := strconv.Atoi(r.PathValue("num"))
-		if err != nil || num < 0 {
+		num, err := strconv.ParseUint(r.PathValue("num"), 10, 64)
+		if err != nil || num == 0 {
 			s.respond(w, r, ErrorResponse{Error: "Invalid Number"}, http.StatusBadRequest)
 			return
 		}
-		answer := calculate_fib(num, s.caches.Calculations)
+		answer := CalculateFibWithCaching(num, s.caches.Calculations)
 
 		w.Header().Set("Cache-Control", "max-age=31536000") // Cache the result for a year
 		s.respond(w, r, response{Answer: answer}, http.StatusOK)
