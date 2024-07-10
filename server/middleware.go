@@ -3,7 +3,6 @@ package server
 import (
 	"bytes"
 	"context"
-	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -55,14 +54,14 @@ func (r *responseRecorder) WriteHeader(statusCode int) {
 func (s *server) middlewareCacheResponseRequestURI(h http.HandlerFunc) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		sha := sha256.New()
-		sha.Write([]byte(r.RequestURI))
-		cacheKey := fmt.Sprintf("%x", sha.Sum(nil))
+		cacheKey := r.RequestURI
 
-		ctx := context.Background()
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+
 		cachedResponseStr, err := s.caches.Responses.Get(ctx, cacheKey).Result()
 		if err == nil {
-			w.Header().Set("Response-Cache-status", "HIT")
+			w.Header().Set("Response-Cache-Status", "HIT")
 			var cachedResponse cachedResponse
 			json.Unmarshal([]byte(cachedResponseStr), &cachedResponse)
 			s.respond(w, r, cachedResponse.Body, cachedResponse.Status)
@@ -80,10 +79,10 @@ func (s *server) middlewareCacheResponseRequestURI(h http.HandlerFunc) http.Hand
 			Status: responseStatus,
 		}
 		cacheDataBytes, _ := json.Marshal(cacheData)
-		_, err = s.caches.Responses.Set(ctx, cacheKey, cacheDataBytes, 0).Result()
+		_, err = s.caches.Responses.Set(ctx, cacheKey, cacheDataBytes, 120*time.Second).Result()
 		if err != nil {
 			log.Println("failed to set cache for handler ", err)
 		}
-		w.Header().Set("Response-Cache-status", "MISS")
+		w.Header().Set("Response-Cache-Status", "MISS")
 	}
 }

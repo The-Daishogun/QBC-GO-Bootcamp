@@ -34,6 +34,6 @@ func (s *server) HandleSendEmail() http.HandlerFunc {
 			s.emailServer.SendEmail(user.Email, data.Subject, data.Content)
 		}
 
-		s.respond(w, r, response{Message: fmt.Sprintf("%d emails sent!", len(allUsers))}, http.StatusOK)
+		s.respond(w, r, response{Message: fmt.Sprintf("%d emails sent!", len(allUsers))}, http.StatusAccepted)
 	}
 }

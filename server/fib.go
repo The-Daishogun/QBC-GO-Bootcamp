@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -28,7 +29,8 @@ func CalculateFibWithCaching(num uint64, cache *redis.Client) uint64 {
 
 	fib := CalculateFibWithCaching(num-2, cache) + CalculateFibWithCaching(num-1, cache)
 
-	_, err = cache.Set(ctx, cacheKey, fib, 0).Result()
+	expiration := 120 * time.Second
+	_, err = cache.Set(ctx, cacheKey, fib, expiration).Result()
 	if err != nil {
 		log.Printf("failed to set cache for %s, Error: %s\n", cacheKey, err.Error())
 	}
@@ -53,6 +55,7 @@ func (s *server) HandleFib() http.HandlerFunc {
 			return
 		}
 		answer := CalculateFibWithCaching(num, s.caches.Calculations)
+		// answer := CaclulateFib(num)
 
 		w.Header().Set("Cache-Control", "max-age=31536000") // Cache the result for a year
 		s.respond(w, r, response{Answer: answer}, http.StatusOK)
