@@ -1,0 +1,11 @@
+
+
+services:
+  nginx:
+    image: nginx
+    network_mode: host
+    volumes:
+      - ./config/nginx.conf:/etc/nginx/nginx.conf
+      - .:/www/website
+    environment:
+    - NGINX_PORT=80
