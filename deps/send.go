@@ -5,6 +5,10 @@ import (
 	"time"
 )
 
+type EmailSender interface {
+	SendEmail(to, subject, content string)
+}
+
 type EmailServer struct {
 }
 

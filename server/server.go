@@ -10,10 +10,10 @@ import (
 type server struct {
 	db          *gorm.DB
 	router      *http.ServeMux
-	emailServer *deps.EmailServer
+	emailServer deps.EmailSender
 }
 
-func NewServer(db *gorm.DB, emailServer *deps.EmailServer) *server {
+func NewServer(db *gorm.DB, emailServer deps.EmailSender) *server {
 	s := &server{db: db, emailServer: emailServer, router: http.NewServeMux()}
 	s.routes()
 	return s

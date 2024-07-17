@@ -9,7 +9,7 @@ import (
 
 func main() {
 	log.Println("Setting Up the Server...")
-	db := deps.CreateNewDB()
+	db, _ := deps.CreateNewDB("db.sqlite")
 	emailServer := deps.NewEmailServer()
 	s := server.NewServer(db, emailServer)
 	log.Println("HTTP Server Running on http://localhost:8000")
